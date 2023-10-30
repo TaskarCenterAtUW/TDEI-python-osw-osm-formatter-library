@@ -37,7 +37,7 @@ class OSMWayParser(osmium.SimpleHandler):
             u = w.nodes[i]
             v = w.nodes[i + 1]
 
-            # NOTE: why are the coordinates floats? Wouldn't fixed
+            # NOTE: why are the coordinates floats? Wouldn't fix
             # precision be better?
             u_ref = int(u.ref)
             u_lon = float(u.lon)

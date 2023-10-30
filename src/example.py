@@ -1,6 +1,6 @@
 import os
 import asyncio
-from lib_formatter import Formatter
+from osm_osw_reformatter import Formatter
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
