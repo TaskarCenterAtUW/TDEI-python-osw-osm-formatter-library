@@ -1,0 +1,7 @@
+osmium==3.6.0
+asyncio==3.4.3
+networkx==3.2
+shapely==2.0.2
+pyproj==3.6.1
+coverage==7.2.7
+html_testRunner==1.2.1
