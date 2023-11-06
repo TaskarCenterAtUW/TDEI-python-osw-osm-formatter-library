@@ -1,7 +1,7 @@
 import os
+import re
 import asyncio
 import unittest
-from unittest.mock import AsyncMock
 from src.osm_osw_reformatter.osm2osw.osm2osw import OSM2OSW
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,9 +14,49 @@ class TestOSM2OSW(unittest.IsolatedAsyncioTestCase):
         pbf_path = TEST_FILE
 
         async def run_test():
-            osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR)
+            osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
             result = await osm2osw.convert()
-            self.assertTrue(result)
+            self.assertTrue(result.status)
+            for file in result.generated_files:
+                os.remove(file)
+
+        asyncio.run(run_test())
+
+    def test_generated_3_files(self):
+        pbf_path = TEST_FILE
+
+        async def run_test():
+            osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
+            result = await osm2osw.convert()
+            self.assertEqual(len(result.generated_files), 3)
+            for file in result.generated_files:
+                os.remove(file)
+
+        asyncio.run(run_test())
+
+    def test_generated_files_include_nodes_points_edges(self):
+        pbf_path = TEST_FILE
+
+        async def run_test():
+            osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
+            result = await osm2osw.convert()
+            for file_path in result.generated_files:
+                self.assertTrue(re.search(r'(nodes|points|edges)', file_path))
+            for file_path in result.generated_files:
+                os.remove(file_path)
+
+        asyncio.run(run_test())
+
+    def test_generated_files_are_string(self):
+        pbf_path = TEST_FILE
+
+        async def run_test():
+            osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
+            result = await osm2osw.convert()
+            for file_path in result.generated_files:
+                self.assertIsInstance(file_path, str)
+            for file_path in result.generated_files:
+                os.remove(file_path)
 
         asyncio.run(run_test())
 
@@ -24,11 +64,10 @@ class TestOSM2OSW(unittest.IsolatedAsyncioTestCase):
         async def mock_count_entities_error(pbf_path, counter_cls):
             raise Exception("Error in counting entities")
 
-        o2o = OSM2OSW(pbf_file='test.pbf', workdir='work_dir')
+        osm2osw = OSM2OSW(pbf_file='test.pbf', workdir='work_dir', prefix='test')
 
-        result = await o2o.convert()
-
-        self.assertFalse(result)
+        result = await osm2osw.convert()
+        self.assertFalse(result.status)
 
 
 if __name__ == '__main__':
