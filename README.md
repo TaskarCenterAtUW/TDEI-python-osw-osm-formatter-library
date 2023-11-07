@@ -26,7 +26,17 @@ The conversion of OSW data to OSM is beneficial for incorporating detailed pedes
 | Python   | 3.10.x  |  
 | GDAL     | latest  |  
   
+## Establishing python env for the project
+Running the code base requires a proper Python environment set up. The following lines of code helps one establish such env named `tdei-osw`. replace `tdei-osw` with the name of your choice.
+
+```
+conda create -n tdei-osw python==3.10.3 gdal
+conda activate tdei-osw
+pip install -r requirements.txt
+```
+
 ## How to install GDAL   
+If for some reason the above conda creation fails to install GDAL, please follow the procedure below.
   
 To install the GDAL library (Geospatial Data Abstraction Library) on your system, you can follow the steps below. The specific installation process may vary depending on your operating system.  
   
