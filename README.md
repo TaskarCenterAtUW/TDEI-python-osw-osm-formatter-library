@@ -34,6 +34,8 @@ conda create -n tdei-osw python==3.10.3 gdal
 conda activate tdei-osw
 pip install -r requirements.txt
 ```
+Alternatively one can use the `setup_env.sh` script provided with this repo. One can run 
+`source ./setup_env.sh`. Once run, the command creates an environment with the name `tdei`
 
 ## How to install GDAL   
 If for some reason the above conda creation fails to install GDAL, please follow the procedure below.
@@ -119,7 +121,7 @@ folder.
   
 - To execute the code coverage, please follow the commands:  
   
-  `coverage run --source=src -m unittest discover -v tests/unit_tests`  
+  `python -m coverage run --source=src -m unittest discover -v tests/unit_tests`  
   
  `coverage html` // Can be run after 1st command  
   
