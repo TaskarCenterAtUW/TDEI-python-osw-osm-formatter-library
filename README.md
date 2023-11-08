@@ -123,7 +123,7 @@ folder.
 - To execute the code coverage, please follow the commands:  
   
     ```
-    coverage run --source=src -m unittest discover -v tests/unit_tests
+    python -m coverage run --source=src -m unittest discover -v tests/unit_tests
     coverage html                                                       // Can be run after 1st command
     coverage report                                                     // Can be run after 1st command 
     ```
