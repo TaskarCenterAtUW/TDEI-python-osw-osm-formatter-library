@@ -21,8 +21,7 @@ then
 fi
 
 echo "Creating $env_name env with conda ..."
-# y | conda create -n $env_name python==3.10.3 gdal==3.7.3
-y | conda create -n $env_name python==3.10.3
+y | conda create -n $env_name python==3.10.12 gdal
 
 echo "Activating $env_name ..."
 source ~/anaconda3/etc/profile.d/conda.sh

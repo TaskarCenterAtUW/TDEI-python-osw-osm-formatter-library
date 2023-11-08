@@ -4,7 +4,4 @@ networkx==3.2
 shapely==2.0.2
 pyproj==3.6.1
 coverage==7.2.7
-html_testRunner==1.2.1
-lxml==4.9.3
-# GDAL==3.7.3
 ogr2osm==1.2.0

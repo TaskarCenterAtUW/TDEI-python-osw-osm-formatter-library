@@ -24,7 +24,7 @@ The conversion of OSW data to OSM is beneficial for incorporating detailed pedes
 | Software | Version |  
 |----------|---------|  
 | Python   | 3.10.x  |  
-| GDAL     | latest  |  
+| GDAL     | 3.4.1   |  
   
 ## Establishing python env for the project
 Running the code base requires a proper Python environment set up. The following lines of code helps one establish such env named `tdei-osw`. replace `tdei-osw` with the name of your choice.
@@ -45,7 +45,7 @@ To install the GDAL library (Geospatial Data Abstraction Library) on your system
 1. **Linux (Ubuntu/Debian):**  GDAL is available in the Ubuntu and Debian repositories. You can install it using apt: 
     ``` 
     sudo apt update 
-    sudo apt install gdal-bin 
+    sudo apt install gdal-bin libgdal-dev python3-gdal 
     ```
    
   2.   **Linux (CentOS/RHEL):** On CentOS/RHEL, you can install GDAL using `yum`:
@@ -82,8 +82,7 @@ To install the GDAL library (Geospatial Data Abstraction Library) on your system
 - Add `osm-osw-reformatter` package as dependency in your `requirements.txt`  
 - or `pip install osm-osw-reformatter`  
 - Start using the packages in your code.  
-    
-  
+
 ```python  
 import asyncio
 from osm-osw-reformatter import Formatter  
@@ -115,24 +114,25 @@ folder.
   
 - To execute the tests, please follow the commands:  
   
-  `pip install -r requirements.txt`  
-  
- `python -m unittest discover -v tests/unit_tests`  
+    ```
+    pip install -r requirements.txt
+    python -m unittest discover -v tests/unit_tests
+    ```  
+    
   
 - To execute the code coverage, please follow the commands:  
   
-  `python -m coverage run --source=src -m unittest discover -v tests/unit_tests`  
-  
- `coverage html` // Can be run after 1st command  
-  
-  `coverage report` // Can be run after 1st command  
+    ```
+    coverage run --source=src -m unittest discover -v tests/unit_tests
+    coverage html                                                       // Can be run after 1st command
+    coverage report                                                     // Can be run after 1st command 
+    ```
   
 - After the commands are run, you can check the coverage report in `htmlcov/index.html`. Open the file in any browser,  
   and it shows complete coverage details  
 - The terminal will show the output of coverage like this  
   
 ```shell  
-  
 >  coverage run --source=src -m unittest discover -v tests/unit_tests  
 test_construct_geometries (helpers.test_osm.TestOSMHelper) ... ok
 test_count_entities_with_nodes_counter (helpers.test_osm.TestOSMHelper) ... ok
