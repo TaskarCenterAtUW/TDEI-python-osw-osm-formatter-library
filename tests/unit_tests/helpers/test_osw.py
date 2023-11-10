@@ -1,6 +1,9 @@
 import os
+import json
+import zipfile
 import asyncio
 import unittest
+from pathlib import Path
 from src.osm_osw_reformatter.helpers.osw import OSWHelper
 from src.osm_osw_reformatter.serializer.osm.osm_graph import OSMGraph
 from src.osm_osw_reformatter.serializer.counters import WayCounter, PointCounter, NodeCounter
@@ -8,14 +11,43 @@ from src.osm_osw_reformatter.serializer.counters import WayCounter, PointCounter
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(ROOT_DIR)), 'output')
 TEST_FILE = os.path.join(ROOT_DIR, 'test_files/wa.microsoft.osm.pbf')
+TEST_ZIP_FILE = os.path.join(ROOT_DIR, 'test_files/test.zip')
 
 
 class TestOSWHelper(unittest.TestCase):
     def setUp(self):
         self.pbf_file_path = TEST_FILE
-        is_exists = os.path.exists(OUTPUT_DIR)
-        if not is_exists:
+        if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
+
+        if not os.path.exists(TEST_ZIP_FILE):
+            with zipfile.ZipFile(TEST_ZIP_FILE, 'w') as zf:
+                zf.writestr('nodes', 'Nodes content')
+                zf.writestr('edges', 'Edges content')
+                zf.writestr('points', 'Points content')
+        self.geojson_files = {
+            f'{OUTPUT_DIR}/file1.geojson': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {'type': 'Feature', 'properties': {}, 'geometry': {'type': 'Point', 'coordinates': [1, 2]}}]
+            },
+            f'{OUTPUT_DIR}/file2.geojson': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {'type': 'Feature', 'properties': {}, 'geometry': {'type': 'Point', 'coordinates': [3, 4]}}]
+            }
+        }
+        for filename, data in self.geojson_files.items():
+            with open(filename, 'w') as f:
+                json.dump(data, f)
+
+    def tearDown(self):
+        if os.path.exists(TEST_ZIP_FILE):
+            os.remove(TEST_ZIP_FILE)
+
+        for filename in self.geojson_files.keys():
+            if os.path.exists(filename):
+                os.remove(filename)
 
     def test_osw_way_filter(self):
         tags = {'tag1': 'value1', 'tag2': 'value2'}
@@ -116,3 +148,48 @@ class TestOSWHelper(unittest.TestCase):
             self.assertIsNone(construct_geometries_result)
 
         asyncio.run(run_test())
+
+    def test_unzip(self):
+        file_locations = OSWHelper.unzip(zip_file=TEST_ZIP_FILE, output=OUTPUT_DIR)
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT_DIR, 'nodes')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT_DIR, 'edges')))
+        self.assertTrue(os.path.exists(os.path.join(OUTPUT_DIR, 'points')))
+        self.assertEqual(len(file_locations), 3)
+        self.assertEqual(file_locations['nodes'], os.path.join(OUTPUT_DIR, 'nodes'))
+        self.assertEqual(file_locations['edges'], os.path.join(OUTPUT_DIR, 'edges'))
+        self.assertEqual(file_locations['points'], os.path.join(OUTPUT_DIR, 'points'))
+        os.remove(os.path.join(OUTPUT_DIR, 'nodes'))
+        os.remove(os.path.join(OUTPUT_DIR, 'edges'))
+        os.remove(os.path.join(OUTPUT_DIR, 'points'))
+
+    def test_unzip_should_return_3_files(self):
+        file_locations = OSWHelper.unzip(zip_file=TEST_ZIP_FILE, output=OUTPUT_DIR)
+        self.assertEqual(len(file_locations), 3)
+        os.remove(os.path.join(OUTPUT_DIR, 'nodes'))
+        os.remove(os.path.join(OUTPUT_DIR, 'edges'))
+        os.remove(os.path.join(OUTPUT_DIR, 'points'))
+
+    def test_missing_files(self):
+        zip_file_path = f'{OUTPUT_DIR}/test_missing_files.zip'
+        with zipfile.ZipFile(zip_file_path, 'w') as zf:
+            zf.writestr('other_file.txt', 'Other file content')
+
+        file_locations = OSWHelper.unzip(zip_file=zip_file_path, output=OUTPUT_DIR)
+        self.assertEqual(len(file_locations), 0)
+
+        os.remove(f'{OUTPUT_DIR}/other_file.txt')
+        os.remove(zip_file_path)
+
+    def test_merge(self):
+        osm_files = {file: file for file in self.geojson_files.keys()}
+        output_path = OSWHelper.merge(osm_files=osm_files, output=OUTPUT_DIR, prefix='test')
+        self.assertTrue(os.path.exists(output_path))
+        self.assertTrue(Path(output_path).is_file())
+
+    def test_cleanup_of_temp_files(self):
+        osm_files = {file: file for file in self.geojson_files.keys()}
+        output_path = OSWHelper.merge(osm_files=osm_files, output=OUTPUT_DIR, prefix='test')
+
+        # Check if the temporary GeoJSON files have been removed
+        for filename in self.geojson_files.keys():
+            self.assertFalse(os.path.exists(filename))
