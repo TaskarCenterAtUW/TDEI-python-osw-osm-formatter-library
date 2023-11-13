@@ -1,5 +1,10 @@
 # Change log
 
+### 0.0.3
+- Added init files
+- Added prefix
+
+
 ### 0.0.2
 - Introduces OSW to OSM convertor which converts OSW(geojson) files to OSM(xml) format.
 - Added example.py file which demonstrate how to use the package
