@@ -3,8 +3,8 @@ import json
 import pyproj
 import osmium
 import networkx as nx
-from shapely.geometry import LineString, Point, mapping, shape
-from ..osw.osw_normalizer import OSWPointNormalizer, OSWWayNormalizer, OSWNodeNormalizer
+from shapely.geometry import LineString, Point, Polygon, mapping, shape
+from ..osw.osw_normalizer import OSW_SCHEMA_ID, OSWPointNormalizer, OSWWayNormalizer, OSWNodeNormalizer, OSWLineNormalizer, OSWZoneNormalizer, OSWPolygonNormalizer
 
 
 class OSMWayParser(osmium.SimpleHandler):
@@ -22,14 +22,15 @@ class OSMWayParser(osmium.SimpleHandler):
             self.progressbar.update(1)
 
         if not self.way_filter(w.tags):
-            if self.progressbar:
-                self.progressbar.update(1)
             return
 
         d = {'osm_id': int(w.id)}
 
         tags = dict(w.tags)
         tags['osm_id'] = str(int(w.id))
+
+        if "area" in tags and tags["area"] == "yes":
+            return
 
         d2 = {**d, **OSWWayNormalizer(tags).normalize()}
 
@@ -85,7 +86,7 @@ class OSMNodeParser(osmium.SimpleHandler):
         if n.id not in self.G.nodes:
             return
 
-        d = {'osm_id': int(n.id)}
+        d = {}
 
         tags = dict(n.tags)
 
@@ -118,16 +119,188 @@ class OSMPointParser(osmium.SimpleHandler):
         if not self.point_filter(n.tags):
             return
 
-        if n.id in self.G.nodes:
-            return
-
-        d = {'osm_id': int(n.id)}
+        d = {}
 
         tags = dict(n.tags)
 
         d2 = {**d, **OSWPointNormalizer(tags).normalize()}
 
-        self.G.add_node(n.id, lon=n.location.lon, lat=n.location.lat, **d2)
+        self.G.add_node("p" + str(n.id), lon=n.location.lon, lat=n.location.lat, **d2)
+
+
+class OSMLineParser(osmium.SimpleHandler):
+    def __init__(self, G, line_filter=None, progressbar=None):
+        """
+
+        :param G: MultiDiGraph that already has ways inserted as edges.
+        :type G: nx.MultiDiGraph
+
+        """
+        osmium.SimpleHandler.__init__(self)
+        self.G = G
+        if line_filter is None:
+            self.line_filter = lambda w: True
+        else:
+            self.line_filter = line_filter
+        self.progressbar = progressbar
+
+    def way(self, w):
+        if self.progressbar:
+            self.progressbar.update(1)
+
+        if not self.line_filter(w.tags):
+            return
+
+        d = {}
+        tags = dict(w.tags)
+
+        d2 = {**d, **OSWLineNormalizer(tags).normalize()}
+
+        ndref = []
+        for i in range(len(w.nodes)):
+            u = w.nodes[i]
+
+            u_lon = float(u.lon)
+            u_lat = float(u.lat)
+
+            ndref.append([u_lon, u_lat])
+            del u
+        
+        d3 = {**d2}
+        d3["ndref"] = ndref
+        self.G.add_node("l" + str(w.id), **d3)
+
+        del w
+
+
+class OSMZoneParser(osmium.SimpleHandler):
+    def __init__(self, G, zone_filter=None, progressbar=None):
+        """
+
+        :param G: MultiDiGraph that already has ways inserted as edges.
+        :type G: nx.MultiDiGraph
+
+        """
+        osmium.SimpleHandler.__init__(self)
+        self.G = G
+        if zone_filter is None:
+            self.zone_filter = lambda w: True
+        else:
+            self.zone_filter = zone_filter
+        self.progressbar = progressbar
+
+    def area(self, a):
+        if self.progressbar:
+            self.progressbar.update(1)
+
+        if not self.zone_filter(a.tags):
+            return
+        
+        d = {}
+        tags = dict(a.tags)
+
+        d2 = {**d, **OSWZoneNormalizer(tags).normalize()}
+
+        exteriors_count = 0
+        for exterior in a.outer_rings():
+            ndref = []
+            for i in range(len(exterior)):
+                u = exterior[i]
+
+                u_ref = int(u.ref)
+                u_lon = float(u.lon)
+                u_lat = float(u.lat)
+
+                ndref.append(str(u_ref))
+                self.G.add_node(u_ref, lon=u_lon, lat=u_lat)
+                del u
+            
+            d3 = {**d2}
+            d3["ndref"] = ndref
+
+            # Add interior holes without nodes
+            indref = []
+            for inner in a.inner_rings(exterior):
+                ndref = []
+                for i in range(len(inner)):
+                    u = inner[i]
+
+                    u_lon = float(u.lon)
+                    u_lat = float(u.lat)
+
+                    ndref.append([u_lon, u_lat])
+                indref.append(ndref)
+            
+            d3["indref"] = indref
+            if exteriors_count > 0:
+                self.G.add_node("z" + str(a.id) + str(exteriors_count), **d3)
+            else:
+                self.G.add_node("z" + str(a.id), **d3)
+            exteriors_count = exteriors_count + 1
+
+
+class OSMPolygonParser(osmium.SimpleHandler):
+    def __init__(self, G, polygon_filter=None, progressbar=None):
+        """
+
+        :param G: MultiDiGraph that already has ways inserted as edges.
+        :type G: nx.MultiDiGraph
+
+        """
+        osmium.SimpleHandler.__init__(self)
+        self.G = G
+        if polygon_filter is None:
+            self.polygon_filter = lambda w: True
+        else:
+            self.polygon_filter = polygon_filter
+        self.progressbar = progressbar
+
+    def area(self, a):
+        if self.progressbar:
+            self.progressbar.update(1)
+
+        if not self.polygon_filter(a.tags):
+            return
+
+        d = {}
+        tags = dict(a.tags)
+
+        d2 = {**d, **OSWPolygonNormalizer(tags).normalize()}
+
+        exteriors_count = 0
+        for exterior in a.outer_rings():
+            ndref = []
+            for i in range(len(exterior)):
+                u = exterior[i]
+
+                u_lon = float(u.lon)
+                u_lat = float(u.lat)
+
+                ndref.append([u_lon, u_lat])
+                del u
+            
+            d3 = {**d2}
+            d3["ndref"] = ndref
+
+            # Add interior holes without nodes
+            indref = []
+            for inner in a.inner_rings(exterior):
+                ndref = []
+                for i in range(len(inner)):
+                    u = inner[i]
+
+                    u_lon = float(u.lon)
+                    u_lat = float(u.lat)
+
+                    ndref.append([u_lon, u_lat])
+                indref.append(ndref)
+            
+            d3["indref"] = indref
+            if exteriors_count > 0:
+                self.G.add_node("g" + str(a.id) + str(exteriors_count), **d3)
+            else:
+                self.G.add_node("g" + str(a.id), **d3)
+            exteriors_count = exteriors_count + 1
 
 
 class OSMGraph:
@@ -141,7 +314,8 @@ class OSMGraph:
     @classmethod
     def from_pbf(
       self, pbf, way_filter: Optional[callable] = None, node_filter: Optional[callable] = None,
-      point_filter: Optional[callable] = None, progressbar: Optional[callable] = None
+      point_filter: Optional[callable] = None, line_filter: Optional[callable] = None, zone_filter: Optional[callable] = None, 
+      polygon_filter: Optional[callable] = None, progressbar: Optional[callable] = None
     ):
         way_parser = OSMWayParser(way_filter, progressbar=progressbar)
         way_parser.apply_file(pbf, locations=True)
@@ -158,6 +332,21 @@ class OSMGraph:
         G = point_parser.G
         del point_parser
 
+        line_parser = OSMLineParser(G, line_filter, progressbar=progressbar)
+        line_parser.apply_file(pbf, locations=True)
+        G = line_parser.G
+        del line_parser
+
+        zone_parser = OSMZoneParser(G, zone_filter, progressbar=progressbar)
+        zone_parser.apply_file(pbf)
+        G = zone_parser.G
+        del zone_parser
+
+        polygon_parser = OSMPolygonParser(G, polygon_filter, progressbar=progressbar)
+        polygon_parser.apply_file(pbf)
+        G = polygon_parser.G
+        del polygon_parser
+
         return OSMGraph(G)
 
     def simplify(self) -> None:
@@ -165,6 +354,12 @@ class OSMGraph:
         continuations.
 
         '''
+        # Do not simplify edges that share a node with a zone
+        zone_nodes = set()
+        for node, d in self.G.nodes(data=True):
+            if OSWZoneNormalizer.osw_zone_filter(d):
+                zone_nodes.update(d["ndref"])
+
         # Structure is way_id: (node, segment_number). This makes it easy to
         # sort on-the-fly.
         remove_nodes = {}
@@ -172,6 +367,10 @@ class OSMGraph:
         for node, d in self.G.nodes(data=True):
             if OSWNodeNormalizer.osw_node_filter(d):
                 # Skip if this is a node feature of interest, e.g. kerb ramp
+                continue
+
+            if str(node) in zone_nodes:
+                # Do not simplify edges that share a node with a zone
                 continue
 
             predecessors = list(self.G.predecessors(node))
@@ -209,6 +408,9 @@ class OSMGraph:
             # Sort by segment number
             sorted_node_data = list(sorted(node_data, key=lambda x: x[3]))
 
+            # First node matches last node_out?
+            is_circular = sorted_node_data[0][1] == sorted_node_data[-1][2]
+
             # Split into lists of neighboring nodes
             neighbors_list = []
 
@@ -223,6 +425,11 @@ class OSMGraph:
                     neighbors.append((node_in, node, node_out, segment_n))
             neighbors_list.append(neighbors)
 
+            # Detect neighbors in circular ways which are not completely disjoint from other ways
+            if is_circular and len(neighbors_list) > 1:
+                # Combine first and last neighbor lists
+                neighbors_list[-1].extend(neighbors_list.pop(0))
+            
             # Remove internal nodes by group
             for neighbors in neighbors_list:
                 u, v, w, segment_n = neighbors[0]
@@ -259,16 +466,49 @@ class OSMGraph:
             geometry = LineString(coords)
             d['geometry'] = geometry
             d['length'] = round(self.geod.geometry_length(geometry), 1)
+            internal_nodes = internal_nodes + d["ndref"][1:len(d["ndref"])-1]
             del d['ndref']
             if progressbar:
                 progressbar.update(1)
 
         for n, d in self.G.nodes(data=True):
-            coords = []
-            geometry = Point(d['lon'], d['lat'])
-            d['geometry'] = geometry
-            if progressbar:
-                progressbar.update(1)
+            if OSWZoneNormalizer.osw_zone_filter(d):
+                coords = []
+                for ref in d["ndref"]:
+                    node_d = self.G._node[int(ref)]
+                    coords.append((node_d["lon"], node_d["lat"]))
+
+                geometry = Polygon(coords, d["indref"])
+                d["geometry"] = geometry
+
+                d["_w_id"] = d.pop("ndref")
+                del d["indref"]
+
+                if progressbar:
+                    progressbar.update(1)
+            elif OSWPolygonNormalizer.osw_polygon_filter(d):
+                geometry = Polygon(d["ndref"], d["indref"])
+                d["geometry"] = geometry
+
+                del d["ndref"]
+                del d["indref"]
+
+                if progressbar:
+                    progressbar.update(1)
+            elif OSWLineNormalizer.osw_line_filter(d):
+                geometry = LineString(d["ndref"])
+                d["geometry"] = geometry
+                d["length"] = round(self.geod.geometry_length(geometry), 1)
+                del d["ndref"]
+                if progressbar:
+                    progressbar.update(1)
+            else:
+                geometry = Point(d["lon"], d["lat"])
+                d["geometry"] = geometry
+                if progressbar:
+                    progressbar.update(1)
+                
+        self.G.remove_nodes_from(internal_nodes)
 
     def to_undirected(self):
         if self.G.is_multigraph():
@@ -311,11 +551,20 @@ class OSMGraph:
         return self.G.is_directed()
 
     def to_geojson(self, *args) -> None:
+        OSW_JSON_HEADER = {"$schema": OSW_SCHEMA_ID, "type": "FeatureCollection"}
         nodes_path = args[0]
         edges_path = args[1]
+        points_path = args[2]
+        lines_path = args[3]
+        zones_path = args[4]
+        polygons_path = args[5]
+
+        _id = 1
         edge_features = []
         for u, v, d in self.G.edges(data=True):
             d_copy = {**d}
+            d_copy['_id'] = str(_id)
+            _id += 1
             d_copy['_u_id'] = str(u)
             d_copy['_v_id'] = str(v)
 
@@ -330,16 +579,49 @@ class OSMGraph:
             edge_features.append(
                 {'type': 'Feature', 'geometry': geometry, 'properties': d_copy}
             )
-        edges_fc = {'type': 'FeatureCollection', 'features': edge_features}
+        edges_fc = {**OSW_JSON_HEADER, **{"features": edge_features}}
 
         node_features = []
+        point_features = []
+        line_features = []
+        zone_features = []
+        polygon_features = []
         for n, d in self.G.nodes(data=True):
             d_copy = {**d}
-            if 'is_point' not in d_copy:
-                d_copy['_id'] = str(n)
+            d_copy["_id"] = str(n)[1:]
 
-                if 'osm_id' in d_copy:
-                    d_copy.pop('osm_id')
+            if OSWPointNormalizer.osw_point_filter(d):
+                geometry = mapping(d_copy.pop("geometry"))
+
+                if "lon" in d_copy:
+                    d_copy.pop("lon")
+
+                if "lat" in d_copy:
+                    d_copy.pop("lat")
+
+                point_features.append(
+                    {"type": "Feature", "geometry": geometry, "properties": d_copy}
+                )
+            elif OSWLineNormalizer.osw_line_filter(d):
+                geometry = mapping(d_copy.pop("geometry"))
+
+                line_features.append(
+                    {"type": "Feature", "geometry": geometry, "properties": d_copy}
+                )
+            elif OSWZoneNormalizer.osw_zone_filter(d):
+                geometry = mapping(d_copy.pop("geometry"))
+
+                zone_features.append(
+                    {"type": "Feature", "geometry": geometry, "properties": d_copy}
+                )
+            elif OSWPolygonNormalizer.osw_polygon_filter(d):
+                geometry = mapping(d_copy.pop("geometry"))
+
+                polygon_features.append(
+                    {"type": "Feature", "geometry": geometry, "properties": d_copy}
+                )
+            else:
+                d_copy['_id'] = str(n)
 
                 geometry = mapping(d_copy.pop('geometry'))
 
@@ -352,42 +634,35 @@ class OSMGraph:
                 node_features.append(
                     {'type': 'Feature', 'geometry': geometry, 'properties': d_copy}
                 )
-        nodes_fc = {'type': 'FeatureCollection', 'features': node_features}
+        nodes_fc = {**OSW_JSON_HEADER, **{"features": node_features}}
+        points_fc = {**OSW_JSON_HEADER, **{"features": point_features}}
+        lines_fc = {**OSW_JSON_HEADER, **{"features": line_features}}
+        zones_fc = {**OSW_JSON_HEADER, **{"features": zone_features}}
+        polygons_fc = {**OSW_JSON_HEADER, **{"features": polygon_features}}
 
-        with open(edges_path, 'w') as f:
-            json.dump(edges_fc, f)
+        if len(edge_features) > 0:
+            with open(edges_path, 'w') as f:
+                json.dump(edges_fc, f)
 
-        with open(nodes_path, 'w') as f:
-            json.dump(nodes_fc, f)
+        if len(node_features) > 0:
+            with open(nodes_path, 'w') as f:
+                json.dump(nodes_fc, f)
 
-        if len(args) == 3:
-            points_path = args[2]
-            point_features = []
-            for n, d in self.G.nodes(data=True):
-                d_copy = {**d}
-                if 'is_point' in d_copy:
-                    d_copy['_id'] = str(n)
-
-                    if 'osm_id' in d_copy:
-                        d_copy.pop('osm_id')
-
-                    geometry = mapping(d_copy.pop('geometry'))
-
-                    d_copy.pop('is_point')
-
-                    if 'lon' in d_copy:
-                        d_copy.pop('lon')
-
-                    if 'lat' in d_copy:
-                        d_copy.pop('lat')
-
-                    point_features.append(
-                        {'type': 'Feature', 'geometry': geometry, 'properties': d_copy}
-                    )
-            points_fc = {'type': 'FeatureCollection', 'features': point_features}
-
-            with open(points_path, 'w') as f:
+        if len(point_features) > 0:
+            with open(points_path, "w") as f:
                 json.dump(points_fc, f)
+
+        if len(line_features) > 0:
+            with open(lines_path, "w") as f:
+                json.dump(lines_fc, f)
+
+        if len(zone_features) > 0:
+            with open(zones_path, "w") as f:
+                json.dump(zones_fc, f)
+
+        if len(polygon_features) > 0:
+            with open(polygons_path, "w") as f:
+                json.dump(polygons_fc, f)
 
     @classmethod
     def from_geojson(cls, nodes_path, edges_path):

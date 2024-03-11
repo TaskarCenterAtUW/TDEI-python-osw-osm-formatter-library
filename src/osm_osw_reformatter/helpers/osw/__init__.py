@@ -5,8 +5,8 @@ import asyncio
 from typing import List
 from pathlib import Path
 from ...serializer.osm.osm_graph import OSMGraph
-from ...serializer.counters import WayCounter, NodeCounter, PointCounter
-from ...serializer.osw.osw_normalizer import OSWWayNormalizer, OSWNodeNormalizer, OSWPointNormalizer
+from ...serializer.counters import WayCounter, NodeCounter, PointCounter, LineCounter, ZoneCounter, PolygonCounter
+from ...serializer.osw.osw_normalizer import OSWWayNormalizer, OSWNodeNormalizer, OSWPointNormalizer, OSWLineNormalizer, OSWZoneNormalizer, OSWPolygonNormalizer
 
 
 class OSWHelper:
@@ -23,6 +23,21 @@ class OSWHelper:
     @staticmethod
     def osw_point_filter(tags):
         normalizer = OSWPointNormalizer(tags)
+        return normalizer.filter()
+    
+    @staticmethod
+    def osw_line_filter(tags):
+        normalizer = OSWLineNormalizer(tags)
+        return normalizer.filter()
+    
+    @staticmethod
+    def osw_zone_filter(tags):
+        normalizer = OSWZoneNormalizer(tags)
+        return normalizer.filter()
+    
+    @staticmethod
+    def osw_polygon_filter(tags):
+        normalizer = OSWPolygonNormalizer(tags)
         return normalizer.filter()
 
     @staticmethod
@@ -47,6 +62,27 @@ class OSWHelper:
         return point_counter.count
 
     @staticmethod
+    async def count_line(pbf_path: str):
+        loop = asyncio.get_event_loop()
+        line_counter = LineCounter()
+        await loop.run_in_executor(None, line_counter.apply_file, pbf_path)
+        return line_counter.count
+
+    @staticmethod
+    async def count_zone(pbf_path: str):
+        loop = asyncio.get_event_loop()
+        zone_counter = ZoneCounter()
+        await loop.run_in_executor(None, zone_counter.apply_file, pbf_path)
+        return zone_counter.count
+
+    @staticmethod
+    async def count_polygon(pbf_path: str):
+        loop = asyncio.get_event_loop()
+        polygon_counter = PolygonCounter()
+        await loop.run_in_executor(None, polygon_counter.apply_file, pbf_path)
+        return polygon_counter.count
+
+    @staticmethod
     async def count_entities(pbf_path: str, counter_class):
         loop = asyncio.get_event_loop()
         counter = counter_class()
@@ -62,7 +98,10 @@ class OSWHelper:
             pbf_path,
             OSWHelper.osw_way_filter,
             OSWHelper.osw_node_filter,
-            OSWHelper.osw_point_filter
+            OSWHelper.osw_point_filter,
+            OSWHelper.osw_line_filter,
+            OSWHelper.osw_zone_filter,
+            OSWHelper.osw_polygon_filter
         )
 
         return OG
@@ -72,15 +111,15 @@ class OSWHelper:
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
             zip_ref.extractall(output)
             extracted_files = zip_ref.namelist()
-            required_files = ['nodes', 'edges', 'points']
+            optional_files = ['nodes', 'edges', 'points', 'lines', 'zones', 'polygons']
             file_locations = {}
 
-            for required_file in required_files:
+            for optional_file in optional_files:
                 for extracted_file in extracted_files:
                     if '__MACOSX' in extracted_file:
                         continue
-                    if required_file in extracted_file:
-                        file_locations[required_file] = f"{output}/{extracted_file}"
+                    if optional_file in extracted_file:
+                        file_locations[optional_file] = f"{output}/{extracted_file}"
 
             return file_locations
 
@@ -116,5 +155,8 @@ class OSWHelper:
         points_path = Path(workdir, f'{filename}.graph.points.geojson')
         nodes_path = Path(workdir, f'{filename}.graph.nodes.geojson')
         edges_path = Path(workdir, f'{filename}.graph.edges.geojson')
-        await loop.run_in_executor(None, og.to_geojson, nodes_path, edges_path, points_path)
-        return [str(nodes_path), str(edges_path), str(points_path)]
+        lines_path = Path(workdir, f'{filename}.graph.lines.geojson')
+        zones_path = Path(workdir, f'{filename}.graph.zones.geojson')
+        polygons_path = Path(workdir, f'{filename}.graph.polygons.geojson')
+        await loop.run_in_executor(None, og.to_geojson, nodes_path, edges_path, points_path, lines_path, zones_path, polygons_path)
+        return [str(nodes_path), str(edges_path), str(points_path), str(lines_path), str(zones_path), str(polygons_path)]
