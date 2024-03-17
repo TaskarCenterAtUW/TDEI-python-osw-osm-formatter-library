@@ -29,7 +29,7 @@ class TestOSMHelper(unittest.TestCase):
 
         async def run_test():
             result = await count_entities(pbf_path, PointCounter)
-            self.assertEqual(result, 0)
+            self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 

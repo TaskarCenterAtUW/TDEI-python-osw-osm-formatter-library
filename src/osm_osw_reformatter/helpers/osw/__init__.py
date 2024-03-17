@@ -62,21 +62,21 @@ class OSWHelper:
         return point_counter.count
 
     @staticmethod
-    async def count_line(pbf_path: str):
+    async def count_lines(pbf_path: str):
         loop = asyncio.get_event_loop()
         line_counter = LineCounter()
         await loop.run_in_executor(None, line_counter.apply_file, pbf_path)
         return line_counter.count
 
     @staticmethod
-    async def count_zone(pbf_path: str):
+    async def count_zones(pbf_path: str):
         loop = asyncio.get_event_loop()
         zone_counter = ZoneCounter()
         await loop.run_in_executor(None, zone_counter.apply_file, pbf_path)
         return zone_counter.count
 
     @staticmethod
-    async def count_polygon(pbf_path: str):
+    async def count_polygons(pbf_path: str):
         loop = asyncio.get_event_loop()
         polygon_counter = PolygonCounter()
         await loop.run_in_executor(None, polygon_counter.apply_file, pbf_path)
