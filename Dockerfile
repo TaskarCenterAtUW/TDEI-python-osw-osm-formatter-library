@@ -22,7 +22,7 @@ COPY src /app/src
 COPY tests /app/tests
 
 # Install GDAL package
-RUN pip install GDAL==3.4.1
+RUN pip install GDAL==3.7.3
 
 # Install Python dependencies from requirements.txt
 RUN pip install -r requirements.txt
