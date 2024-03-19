@@ -1,7 +1,7 @@
 import os
 import asyncio
 from pathlib import Path
-from ..serializer.counters import WayCounter, PointCounter, NodeCounter
+from ..serializer.counters import WayCounter, PointCounter, NodeCounter, LineCounter, ZoneCounter, PolygonCounter
 from ..helpers.response import Response
 from ..helpers.osw import OSWHelper
 
@@ -11,16 +11,19 @@ class OSM2OSW:
         self.pbf_path = str(Path(pbf_file))
         filename = os.path.basename(pbf_file).replace('.pbf', '').replace('.osm', '')
         self.workdir = workdir
-        self.filename = f'{prefix}.{filename}'
+        self.filename = f'{prefix + "." if prefix else ""}{filename}'
         self.generated_files = []
 
     async def convert(self) -> Response:
         try:
-            print('Estimating number of ways, nodes and points in datasets...')
+            print('Estimating number of ways, nodes, points, lines, zones and polygons in datasets...')
             tasks = [
                 OSWHelper.count_entities(self.pbf_path, WayCounter),
                 OSWHelper.count_entities(self.pbf_path, NodeCounter),
-                OSWHelper.count_entities(self.pbf_path, PointCounter)
+                OSWHelper.count_entities(self.pbf_path, PointCounter),
+                OSWHelper.count_entities(self.pbf_path, LineCounter),
+                OSWHelper.count_entities(self.pbf_path, ZoneCounter),
+                OSWHelper.count_entities(self.pbf_path, PolygonCounter)
             ]
 
             count_results = await asyncio.gather(*tasks)

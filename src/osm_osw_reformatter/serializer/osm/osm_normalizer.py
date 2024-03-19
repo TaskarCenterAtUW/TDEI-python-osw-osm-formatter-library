@@ -1,22 +1,34 @@
 import ogr2osm
 
-
 class OSMNormalizer(ogr2osm.TranslationBase):
+
+    OSM_IMPLIED_FOOTWAYS = (
+        "footway",
+        "pedestrian",
+        "steps",
+        "living_street"
+    )
+
     def filter_tags(self, tags):
         '''
         Override this method if you want to modify or add tags to the xml output
         '''
-        # OSW fields with similar OSM field names
-        tags['osw:incline'] = tags.pop('incline', '')
-        tags['incline'] = tags.pop('climb', '')
 
-        # Boolean fields (lossy, fix)
-        if 'tactile_paving' in tags and tags['tactile_paving']:
-            tags['tactile_paving'] = 'yes' if tags['tactile_paving'] == '1' else 'no'
+        # Handle zones
+        if 'highway' in tags and tags['highway'] == 'pedestrian' and '_w_id' in tags and tags['_w_id']:
+            tags['area'] = 'yes'
 
         # OSW derived fields
         tags.pop('_u_id', '')
         tags.pop('_v_id', '')
+        tags.pop('_w_id', '')
+        tags.pop('incline', '')
+        tags.pop('length', '')
+        if 'foot' in tags and tags['foot'] == 'yes' and 'highway' in tags and tags['highway'] in self.OSM_IMPLIED_FOOTWAYS:
+            tags.pop('foot', '')
+
+        # OSW fields with similar OSM field names
+        tags['incline'] = tags.pop('climb', '')
 
         return tags
 
