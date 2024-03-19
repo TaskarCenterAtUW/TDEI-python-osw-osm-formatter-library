@@ -23,6 +23,12 @@ jobs:
       - name: Installing git
         run: pip install gitpython
 
+      - name: Installing GDAL
+        run: pip install GDAL==3.4.1
+
+      - name: Installing Packages
+        run: pip install -r requirements.txt
+
       - name: Generating version file
         run: python freeze_version.py
 
