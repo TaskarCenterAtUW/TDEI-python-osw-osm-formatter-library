@@ -20,13 +20,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install GDAL development headers
-        run: sudo apt-get update && sudo apt-get install -y libgdal-dev
+      - name: Adding GDAL PPA
+        run: sudo apt-add-repository ppa:ubuntugis/ubuntugis-unstable
+
+      - name: Updating Ubuntu
+        run: sudo apt-get update
+
+      - name: Install GDAL development
+        run: sudo apt-get install gdal-bin libgdal-dev
 
       - name: Installing git
         run: pip install gitpython
 
-      - name: Installing GDAL
+      - name: Installing GDAL Package
         run: pip install GDAL==3.7.3
 
       - name: Installing Packages
