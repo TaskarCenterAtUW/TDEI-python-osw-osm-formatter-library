@@ -87,7 +87,34 @@ class TestOSWHelper(unittest.TestCase):
 
         async def run_test():
             result = await OSWHelper.count_points(pbf_path)
-            self.assertEqual(result, 0)
+            self.assertEqual(result, 17502)
+
+        asyncio.run(run_test())
+
+    def test_count_zones(self):
+        pbf_path = self.pbf_file_path
+
+        async def run_test():
+            result = await OSWHelper.count_zones(pbf_path)
+            self.assertEqual(result, 956)
+
+        asyncio.run(run_test())
+
+    def test_count_lines(self):
+        pbf_path = self.pbf_file_path
+
+        async def run_test():
+            result = await OSWHelper.count_lines(pbf_path)
+            self.assertEqual(result, 4630)
+
+        asyncio.run(run_test())
+
+    def test_count_polygons(self):
+        pbf_path = self.pbf_file_path
+
+        async def run_test():
+            result = await OSWHelper.count_polygons(pbf_path)
+            self.assertEqual(result, 956)
 
         asyncio.run(run_test())
 
@@ -105,7 +132,7 @@ class TestOSWHelper(unittest.TestCase):
 
         async def run_test():
             result = await OSWHelper.count_entities(pbf_path, PointCounter)
-            self.assertEqual(result, 0)
+            self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 

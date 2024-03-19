@@ -28,7 +28,7 @@ class TestOSM2OSW(unittest.IsolatedAsyncioTestCase):
         async def run_test():
             osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
             result = await osm2osw.convert()
-            self.assertEqual(len(result.generated_files), 3)
+            self.assertEqual(len(result.generated_files), 6)
             for file in result.generated_files:
                 os.remove(file)
 
@@ -41,7 +41,7 @@ class TestOSM2OSW(unittest.IsolatedAsyncioTestCase):
             osm2osw = OSM2OSW(pbf_file=pbf_path, workdir=OUTPUT_DIR, prefix='test')
             result = await osm2osw.convert()
             for file_path in result.generated_files:
-                self.assertTrue(re.search(r'(nodes|points|edges)', file_path))
+                self.assertTrue(re.search(r'(nodes|points|edges|zones|polygons|lines)', file_path))
             for file_path in result.generated_files:
                 os.remove(file_path)
 

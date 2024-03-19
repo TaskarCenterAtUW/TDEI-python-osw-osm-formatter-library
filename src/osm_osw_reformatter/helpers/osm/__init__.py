@@ -1,5 +1,5 @@
 import asyncio
-from ...serializer.osw.osw_normalizer import OSWWayNormalizer, OSWNodeNormalizer, OSWPointNormalizer
+from ...serializer.osw.osw_normalizer import OSWWayNormalizer, OSWNodeNormalizer, OSWPointNormalizer, OSWLineNormalizer, OSWZoneNormalizer, OSWPolygonNormalizer
 from ...serializer.osm.osm_graph import OSMGraph
 
 
@@ -18,7 +18,10 @@ async def get_osm_graph(pbf_path):
         pbf_path,
         osw_way_filter,
         osw_node_filter,
-        osw_point_filter
+        osw_point_filter,
+        osw_line_filter,
+        osw_zone_filter,
+        osw_polygon_filter
     )
 
     return OG
@@ -36,6 +39,21 @@ def osw_node_filter(tags):
 
 def osw_point_filter(tags):
     normalizer = OSWPointNormalizer(tags)
+    return normalizer.filter()
+
+
+def osw_line_filter(tags):
+    normalizer = OSWLineNormalizer(tags)
+    return normalizer.filter()
+
+
+def osw_zone_filter(tags):
+    normalizer = OSWZoneNormalizer(tags)
+    return normalizer.filter()
+
+
+def osw_polygon_filter(tags):
+    normalizer = OSWPolygonNormalizer(tags)
     return normalizer.filter()
 
 

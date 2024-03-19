@@ -148,9 +148,12 @@ test_construct_geometries (helpers.test_osw.TestOSWHelper) ... ok
 test_count_entities_with_nodes_counter (helpers.test_osw.TestOSWHelper) ... ok
 test_count_entities_with_points_counter (helpers.test_osw.TestOSWHelper) ... ok
 test_count_entities_with_ways_counter (helpers.test_osw.TestOSWHelper) ... ok
+test_count_lines (helpers.test_osw.TestOSWHelper) ... ok
 test_count_nodes (helpers.test_osw.TestOSWHelper) ... ok
 test_count_points (helpers.test_osw.TestOSWHelper) ... ok
+test_count_polygons (helpers.test_osw.TestOSWHelper) ... ok
 test_count_ways (helpers.test_osw.TestOSWHelper) ... ok
+test_count_zones (helpers.test_osw.TestOSWHelper) ... ok
 test_get_osm_graph (helpers.test_osw.TestOSWHelper) ... ok
 test_merge (helpers.test_osw.TestOSWHelper) ... ok
 test_missing_files (helpers.test_osw.TestOSWHelper) ... ok
@@ -168,31 +171,31 @@ test_generated_files_list (helpers.test_response.TestResponseClass) ... ok
 test_generated_files_string (helpers.test_response.TestResponseClass) ... ok
 test_cleanup_existing_files (test_formatter.TestFormatter) ... ok
 test_cleanup_non_existent_files (test_formatter.TestFormatter) ... ok
-test_osm2osw_error (test_formatter.TestFormatter) ... Estimating number of ways, nodes and points in datasets...
+test_osm2osw_error (test_formatter.TestFormatter) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Open failed for 'test.pbf': No such file or directory
 ok
-test_osm2osw_successful (test_formatter.TestFormatter) ... Estimating number of ways, nodes and points in datasets...
+test_osm2osw_successful (test_formatter.TestFormatter) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Creating networks from region extracts...
 Created OSW files!
 ok
 test_workdir_already_exists (test_formatter.TestFormatter) ... ok
 test_workdir_creation (test_formatter.TestFormatter) ... ok
-test_convert_error (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes and points in datasets...
+test_convert_error (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Open failed for 'test.pbf': No such file or directory
 ok
-test_convert_successful (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes and points in datasets...
+test_convert_successful (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Creating networks from region extracts...
 Created OSW files!
 ok
-test_generated_3_files (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes and points in datasets...
+test_generated_3_files (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Creating networks from region extracts...
 Created OSW files!
 ok
-test_generated_files_are_string (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes and points in datasets...
+test_generated_files_are_string (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Creating networks from region extracts...
 Created OSW files!
 ok
-test_generated_files_include_nodes_points_edges (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes and points in datasets...
+test_generated_files_include_nodes_points_edges (test_osm2osw.test_osm2osw.TestOSM2OSW) ... Estimating number of ways, nodes, points, lines, zones and polygons in datasets...
 Creating networks from region extracts...
 Created OSW files!
 ok
@@ -202,7 +205,6 @@ test_convert_generated_files_are_string (test_osw2osm.test_osw2osm.TestOSW2OSM) 
 test_convert_successful (test_osw2osm.test_osw2osm.TestOSW2OSM) ... ok
 test_generated_file (test_osw2osm.test_osw2osm.TestOSW2OSM) ... ok
 test_generated_file_should_be_xml (test_osw2osm.test_osw2osm.TestOSW2OSM) ... ok
-test_crossing (test_serializer.test_osw_normalizer.TestCommonFunctions) ... ok
 test_crossing_markings (test_serializer.test_osw_normalizer.TestCommonFunctions) ... ok
 test_incline (test_serializer.test_osw_normalizer.TestCommonFunctions) ... ok
 test_surface (test_serializer.test_osw_normalizer.TestCommonFunctions) ... ok
@@ -216,10 +218,8 @@ test_is_powerpole_invalid (test_serializer.test_osw_normalizer.TestOSWPointNorma
 test_normalize_invalid_point (test_serializer.test_osw_normalizer.TestOSWPointNormalizer) ... ok
 test_normalize_powerpole (test_serializer.test_osw_normalizer.TestOSWPointNormalizer) ... ok
 test_is_crossing (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
-test_is_cycleway (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 test_is_footway (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 test_is_living_street (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
-test_is_path (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 test_is_pedestrian (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 test_is_sidewalk (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 test_is_stairs (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
@@ -229,7 +229,7 @@ test_normalize_invalid_way (test_serializer.test_osw_normalizer.TestOSWWayNormal
 test_normalize_sidewalk (test_serializer.test_osw_normalizer.TestOSWWayNormalizer) ... ok
 
 ----------------------------------------------------------------------
-Ran 73 tests in 32.805s 
-  
-OK  
+Ran 73 tests in 79.494s
+
+OK
 ```

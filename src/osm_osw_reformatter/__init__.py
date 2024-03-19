@@ -3,6 +3,7 @@ from pathlib import Path
 from .osm2osw.osm2osw import OSM2OSW
 from .osw2osm.osw2osm import OSW2OSM
 from .helpers.response import Response
+from .version import __version__
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # Path used for generation the files.
