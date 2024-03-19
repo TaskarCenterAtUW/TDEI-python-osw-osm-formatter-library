@@ -1,6 +1,6 @@
 # Change log
 
-### 0.0.4
+### 0.2.0
 - Added internal extensions (lines, zones and polygons)
 - Made all OSW files optional
 - Filter areas out of edges
