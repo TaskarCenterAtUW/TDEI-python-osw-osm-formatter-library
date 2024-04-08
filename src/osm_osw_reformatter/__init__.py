@@ -21,7 +21,7 @@ class Formatter:
         self.prefix = prefix
 
     async def osm2osw(self) -> Response:
-        convert = OSM2OSW(pbf_file=self.file_path, workdir=self.workdir, prefix=self.prefix)
+        convert = OSM2OSW(osm_file=self.file_path, workdir=self.workdir, prefix=self.prefix)
         result = await convert.convert()
         self.generated_files = result.generated_files
         return result
