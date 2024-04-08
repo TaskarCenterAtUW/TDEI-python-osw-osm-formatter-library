@@ -41,61 +41,61 @@ class OSWHelper:
         return normalizer.filter()
 
     @staticmethod
-    async def count_ways(pbf_path: str):
+    async def count_ways(osm_file_path: str):
         loop = asyncio.get_event_loop()
         way_counter = WayCounter()
-        await loop.run_in_executor(None, way_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, way_counter.apply_file, osm_file_path)
         return way_counter.count
 
     @staticmethod
-    async def count_nodes(pbf_path: str):
+    async def count_nodes(osm_file_path: str):
         loop = asyncio.get_event_loop()
         node_counter = NodeCounter()
-        await loop.run_in_executor(None, node_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, node_counter.apply_file, osm_file_path)
         return node_counter.count
 
     @staticmethod
-    async def count_points(pbf_path: str):
+    async def count_points(osm_file_path: str):
         loop = asyncio.get_event_loop()
         point_counter = PointCounter()
-        await loop.run_in_executor(None, point_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, point_counter.apply_file, osm_file_path)
         return point_counter.count
 
     @staticmethod
-    async def count_lines(pbf_path: str):
+    async def count_lines(osm_file_path: str):
         loop = asyncio.get_event_loop()
         line_counter = LineCounter()
-        await loop.run_in_executor(None, line_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, line_counter.apply_file, osm_file_path)
         return line_counter.count
 
     @staticmethod
-    async def count_zones(pbf_path: str):
+    async def count_zones(osm_file_path: str):
         loop = asyncio.get_event_loop()
         zone_counter = ZoneCounter()
-        await loop.run_in_executor(None, zone_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, zone_counter.apply_file, osm_file_path)
         return zone_counter.count
 
     @staticmethod
-    async def count_polygons(pbf_path: str):
+    async def count_polygons(osm_file_path: str):
         loop = asyncio.get_event_loop()
         polygon_counter = PolygonCounter()
-        await loop.run_in_executor(None, polygon_counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, polygon_counter.apply_file, osm_file_path)
         return polygon_counter.count
 
     @staticmethod
-    async def count_entities(pbf_path: str, counter_class):
+    async def count_entities(osm_file_path: str, counter_class):
         loop = asyncio.get_event_loop()
         counter = counter_class()
-        await loop.run_in_executor(None, counter.apply_file, pbf_path)
+        await loop.run_in_executor(None, counter.apply_file, osm_file_path)
         return counter.count
 
     @staticmethod
-    async def get_osm_graph(pbf_path: str):
+    async def get_osm_graph(osm_file_path: str):
         loop = asyncio.get_event_loop()
         OG = await loop.run_in_executor(
             None,
-            OSMGraph.from_pbf,
-            pbf_path,
+            OSMGraph.from_osm_file,
+            osm_file_path,
             OSWHelper.osw_way_filter,
             OSWHelper.osw_node_filter,
             OSWHelper.osw_point_filter,

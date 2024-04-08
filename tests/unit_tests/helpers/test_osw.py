@@ -16,7 +16,7 @@ TEST_ZIP_FILE = os.path.join(ROOT_DIR, 'test_files/test.zip')
 
 class TestOSWHelper(unittest.TestCase):
     def setUp(self):
-        self.pbf_file_path = TEST_FILE
+        self.osm_file_path = TEST_FILE
         if not os.path.exists(OUTPUT_DIR):
             os.makedirs(OUTPUT_DIR)
 
@@ -65,100 +65,100 @@ class TestOSWHelper(unittest.TestCase):
         self.assertTrue(isinstance(result, bool))
 
     def test_count_ways(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_ways(pbf_path)
+            result = await OSWHelper.count_ways(osm_file_path)
             self.assertEqual(result, 4630)
 
         asyncio.run(run_test())
 
     def test_count_nodes(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_nodes(pbf_path)
+            result = await OSWHelper.count_nodes(osm_file_path)
             self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 
     def test_count_points(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_points(pbf_path)
+            result = await OSWHelper.count_points(osm_file_path)
             self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 
     def test_count_zones(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_zones(pbf_path)
+            result = await OSWHelper.count_zones(osm_file_path)
             self.assertEqual(result, 956)
 
         asyncio.run(run_test())
 
     def test_count_lines(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_lines(pbf_path)
+            result = await OSWHelper.count_lines(osm_file_path)
             self.assertEqual(result, 4630)
 
         asyncio.run(run_test())
 
     def test_count_polygons(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_polygons(pbf_path)
+            result = await OSWHelper.count_polygons(osm_file_path)
             self.assertEqual(result, 956)
 
         asyncio.run(run_test())
 
     def test_count_entities_with_ways_counter(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_entities(pbf_path, WayCounter)
+            result = await OSWHelper.count_entities(osm_file_path, WayCounter)
             self.assertEqual(result, 4630)
 
         asyncio.run(run_test())
 
     def test_count_entities_with_points_counter(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_entities(pbf_path, PointCounter)
+            result = await OSWHelper.count_entities(osm_file_path, PointCounter)
             self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 
     def test_count_entities_with_nodes_counter(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.count_entities(pbf_path, NodeCounter)
+            result = await OSWHelper.count_entities(osm_file_path, NodeCounter)
             self.assertEqual(result, 17502)
 
         asyncio.run(run_test())
 
     def test_get_osm_graph(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.get_osm_graph(pbf_path)
+            result = await OSWHelper.get_osm_graph(osm_file_path)
             self.assertIsInstance(result, OSMGraph)
 
         asyncio.run(run_test())
 
     def test_simplify_og(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.get_osm_graph(pbf_path)
+            result = await OSWHelper.get_osm_graph(osm_file_path)
             self.assertIsInstance(result, OSMGraph)
             simplify_og_result = await OSWHelper.simplify_og(result)
             self.assertIsNone(simplify_og_result)
@@ -166,10 +166,10 @@ class TestOSWHelper(unittest.TestCase):
         asyncio.run(run_test())
 
     def test_construct_geometries(self):
-        pbf_path = self.pbf_file_path
+        osm_file_path = self.osm_file_path
 
         async def run_test():
-            result = await OSWHelper.get_osm_graph(pbf_path)
+            result = await OSWHelper.get_osm_graph(osm_file_path)
             self.assertIsInstance(result, OSMGraph)
             construct_geometries_result = await OSWHelper.construct_geometries(result)
             self.assertIsNone(construct_geometries_result)

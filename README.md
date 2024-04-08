@@ -8,7 +8,7 @@ This python package designed to convert geospatial data from one format to anoth
 Converting OSM data to OSW is essential for creating accurate and detailed pedestrian-related datasets that can be used to improve pedestrian accessibility and mobility in urban environments. This data can be valuable for research, infrastructure development, and improving the pedestrian experience in cities and communities.  
   
  1. **Converter Purpose:** Converting OSM data to OSW is essential for creating accurate and detailed pedestrian-related datasets that can be used to improve pedestrian accessibility and mobility in urban environments. This data can be valuable for research, infrastructure development, and improving the pedestrian experience in cities and communities.    
- 2. **Input Data:** The converter typically takes OSM data as its input. OSM data can be in the form of OSM files (PBF binary format), which contain geographic elements, their attributes, and relationships.    
+ 2. **Input Data:** The converter typically takes OSM data as its input. OSM data can be in the form of OSM files (PBF binary or plain XML format), which contain geographic elements, their attributes, and relationships.    
  3. **Output Data:** The result of the conversion is OSW data. This output is a representation of geographic features using the OSW schema. The OSW format might have specific attributes and structures points, nodes and edges.    
   
 ## OpenSideWalks (OSW) to OpenStreetMap (OSM)  
@@ -67,12 +67,12 @@ To install the GDAL library (Geospatial Data Abstraction Library) on your system
 ## What this package does
 
 1. osm2osw
-   1. It takes the `pbf` file and output directory path(optional) as input
-   2. Process the pbf file
-   3. Convert the pbf file into edges.geojson, points.geojson and nodes.geojson files at provided output directory path
+   1. It takes the OSM file (pbf or xml) and output directory path(optional) as input
+   2. Process the osm file
+   3. Convert the osm file into edges.geojson, points.geojson, nodes.geojson, zones.geojson, polygons.geojson and lines.geojson files at provided output directory path
 
 2. osw2osm  
-   1. It takes the `zip` file which contains edges.geojson, points.geojson and nodes.geojson files, and output directory path(optional) as input
+   1. It takes the `zip` file which contains edges.geojson, points.geojson, nodes.geojson, zones.geojson, polygons.geojson and lines.geojson files, and output directory path(optional) as input
    2. Process the geojson files
    3. Convert those files into xml file at provided output directory path   
     

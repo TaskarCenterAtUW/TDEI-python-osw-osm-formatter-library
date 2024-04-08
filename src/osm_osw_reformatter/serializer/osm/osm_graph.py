@@ -312,38 +312,38 @@ class OSMGraph:
         self.geod = pyproj.Geod(ellps='WGS84')
 
     @classmethod
-    def from_pbf(
-      self, pbf, way_filter: Optional[callable] = None, node_filter: Optional[callable] = None,
+    def from_osm_file(
+      self, osm_file, way_filter: Optional[callable] = None, node_filter: Optional[callable] = None,
       point_filter: Optional[callable] = None, line_filter: Optional[callable] = None, zone_filter: Optional[callable] = None, 
       polygon_filter: Optional[callable] = None, progressbar: Optional[callable] = None
     ):
         way_parser = OSMWayParser(way_filter, progressbar=progressbar)
-        way_parser.apply_file(pbf, locations=True)
+        way_parser.apply_file(osm_file, locations=True)
         G = way_parser.G
         del way_parser
 
         node_parser = OSMNodeParser(G, node_filter, progressbar=progressbar)
-        node_parser.apply_file(pbf)
+        node_parser.apply_file(osm_file)
         G = node_parser.G
         del node_parser
 
         point_parser = OSMPointParser(G, point_filter, progressbar=progressbar)
-        point_parser.apply_file(pbf)
+        point_parser.apply_file(osm_file)
         G = point_parser.G
         del point_parser
 
         line_parser = OSMLineParser(G, line_filter, progressbar=progressbar)
-        line_parser.apply_file(pbf, locations=True)
+        line_parser.apply_file(osm_file, locations=True)
         G = line_parser.G
         del line_parser
 
         zone_parser = OSMZoneParser(G, zone_filter, progressbar=progressbar)
-        zone_parser.apply_file(pbf)
+        zone_parser.apply_file(osm_file)
         G = zone_parser.G
         del zone_parser
 
         polygon_parser = OSMPolygonParser(G, polygon_filter, progressbar=progressbar)
-        polygon_parser.apply_file(pbf)
+        polygon_parser.apply_file(osm_file)
         G = polygon_parser.G
         del polygon_parser
 
