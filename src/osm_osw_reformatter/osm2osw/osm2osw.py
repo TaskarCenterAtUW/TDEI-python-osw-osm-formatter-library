@@ -7,9 +7,9 @@ from ..helpers.osw import OSWHelper
 
 
 class OSM2OSW:
-    def __init__(self, prefix: str, pbf_file=None, workdir=None):
-        self.pbf_path = str(Path(pbf_file))
-        filename = os.path.basename(pbf_file).replace('.pbf', '').replace('.osm', '')
+    def __init__(self, prefix: str, osm_file=None, workdir=None):
+        self.osm_file_path = str(Path(osm_file))
+        filename = os.path.basename(osm_file).replace('.pbf', '').replace('.xml', '').replace('.osm', '')
         self.workdir = workdir
         self.filename = f'{prefix + "." if prefix else ""}{filename}'
         self.generated_files = []
@@ -18,18 +18,18 @@ class OSM2OSW:
         try:
             print('Estimating number of ways, nodes, points, lines, zones and polygons in datasets...')
             tasks = [
-                OSWHelper.count_entities(self.pbf_path, WayCounter),
-                OSWHelper.count_entities(self.pbf_path, NodeCounter),
-                OSWHelper.count_entities(self.pbf_path, PointCounter),
-                OSWHelper.count_entities(self.pbf_path, LineCounter),
-                OSWHelper.count_entities(self.pbf_path, ZoneCounter),
-                OSWHelper.count_entities(self.pbf_path, PolygonCounter)
+                OSWHelper.count_entities(self.osm_file_path, WayCounter),
+                OSWHelper.count_entities(self.osm_file_path, NodeCounter),
+                OSWHelper.count_entities(self.osm_file_path, PointCounter),
+                OSWHelper.count_entities(self.osm_file_path, LineCounter),
+                OSWHelper.count_entities(self.osm_file_path, ZoneCounter),
+                OSWHelper.count_entities(self.osm_file_path, PolygonCounter)
             ]
 
             count_results = await asyncio.gather(*tasks)
 
             print('Creating networks from region extracts...')
-            tasks = [OSWHelper.get_osm_graph(self.pbf_path)]
+            tasks = [OSWHelper.get_osm_graph(self.osm_file_path)]
             osm_graph_results = await asyncio.gather(*tasks)
             osm_graph_results = list(osm_graph_results)
             OG = osm_graph_results[0]

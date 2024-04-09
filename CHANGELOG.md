@@ -1,5 +1,9 @@
 # Change log
 
+### 0.2.1
+- Adds support for OSM.XML in addition to OSM.PBF file format
+
+
 ### 0.2.0
 - Added internal extensions (lines, zones and polygons)
 - Made all OSW files optional

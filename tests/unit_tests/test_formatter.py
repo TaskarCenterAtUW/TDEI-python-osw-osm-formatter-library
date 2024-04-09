@@ -16,7 +16,7 @@ EXISTING_DIR = 'existing_directory'
 class TestFormatter(unittest.TestCase):
 
     def setUp(self):
-        self.pbf_file_path = TEST_PBF_FILE
+        self.osm_file_path = TEST_PBF_FILE
         self.osw_file_path = TEST_OSW_FILE
         self.existing_files = [f'{OUTPUT_DIR}/file1.txt', f'{OUTPUT_DIR}/file2.txt']
         self.non_existent_files = [f'{OUTPUT_DIR}/non_existent1.txt', f'{OUTPUT_DIR}/non_existent2.txt']
@@ -34,10 +34,10 @@ class TestFormatter(unittest.TestCase):
                 os.remove(file)
 
     def test_osm2osw_successful(self):
-        pbf_file = self.pbf_file_path
+        osm_file = self.osm_file_path
 
         async def run_test():
-            formatter = Formatter(file_path=pbf_file, workdir=OUTPUT_DIR)
+            formatter = Formatter(file_path=osm_file, workdir=OUTPUT_DIR)
             result = await formatter.osm2osw()
             formatter.cleanup()
             self.assertTrue(result.status)
@@ -45,10 +45,10 @@ class TestFormatter(unittest.TestCase):
         asyncio.run(run_test())
 
     def test_osm2osw_error(self):
-        pbf_file = 'test.pbf'
+        osm_file = 'test.pbf'
 
         async def run_test():
-            formatter = Formatter(file_path=pbf_file, workdir=TEST_DIR)
+            formatter = Formatter(file_path=osm_file, workdir=TEST_DIR)
             result = await formatter.osm2osw()
             self.assertFalse(result.status)
 
