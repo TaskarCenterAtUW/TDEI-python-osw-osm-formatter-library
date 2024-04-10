@@ -1,5 +1,8 @@
 # Change log
 
+### 0.2.2
+- Fixes the issues with multiple files generated during the conversion.
+
 ### 0.2.1
 - Adds support for OSM.XML in addition to OSM.PBF file format
 
