@@ -159,4 +159,7 @@ class OSWHelper:
         zones_path = Path(workdir, f'{filename}.graph.zones.geojson')
         polygons_path = Path(workdir, f'{filename}.graph.polygons.geojson')
         await loop.run_in_executor(None, og.to_geojson, nodes_path, edges_path, points_path, lines_path, zones_path, polygons_path)
-        return [str(nodes_path), str(edges_path), str(points_path), str(lines_path), str(zones_path), str(polygons_path)]
+        # for the fi
+        pot_gen_files = [str(nodes_path), str(edges_path), str(points_path), str(lines_path), str(zones_path), str(polygons_path)]
+        generated_files = [ file for file in pot_gen_files if os.path.exists(file) ]
+        return generated_files
