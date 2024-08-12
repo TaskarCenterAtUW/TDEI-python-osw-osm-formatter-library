@@ -1,5 +1,8 @@
 # Change log
 
+### 0.2.3
+- Fixes dependencies
+
 ### 0.2.2
 - Fixes the issues with multiple files generated during the conversion.
 
