@@ -38,6 +38,8 @@ class OSMWayParser(osmium.SimpleHandler):
             u = w.nodes[i]
             v = w.nodes[i + 1]
 
+            if not u.location.valid() or not v.location.valid():
+                continue
             # NOTE: why are the coordinates floats? Wouldn't fix
             # precision be better?
             u_ref = int(u.ref)
@@ -337,15 +339,15 @@ class OSMGraph:
         G = line_parser.G
         del line_parser
 
-        zone_parser = OSMZoneParser(G, zone_filter, progressbar=progressbar)
-        zone_parser.apply_file(osm_file)
-        G = zone_parser.G
-        del zone_parser
+        # zone_parser = OSMZoneParser(G, zone_filter, progressbar=progressbar)
+        # zone_parser.apply_file(osm_file)
+        # G = zone_parser.G
+        # del zone_parser
 
-        polygon_parser = OSMPolygonParser(G, polygon_filter, progressbar=progressbar)
-        polygon_parser.apply_file(osm_file)
-        G = polygon_parser.G
-        del polygon_parser
+        # polygon_parser = OSMPolygonParser(G, polygon_filter, progressbar=progressbar)
+        # polygon_parser.apply_file(osm_file)
+        # G = polygon_parser.G
+        # del polygon_parser
 
         return OSMGraph(G)
 
