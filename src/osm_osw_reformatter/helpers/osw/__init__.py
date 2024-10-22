@@ -122,8 +122,8 @@ class OSWHelper:
                 for extracted_file in extracted_files:
                     if '__MACOSX' in extracted_file:
                         continue
-                    if optional_file in extracted_file:
-                        file_locations[optional_file] = f"{output}/{extracted_file}"
+                    if optional_file.lower() in extracted_file.lower():
+                        file_locations[optional_file] = f'{output}/{extracted_file}'
 
             gc.collect()
             return file_locations
