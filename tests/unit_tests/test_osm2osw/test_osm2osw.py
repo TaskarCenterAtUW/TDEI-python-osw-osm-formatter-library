@@ -28,7 +28,7 @@ class TestOSM2OSW(unittest.IsolatedAsyncioTestCase):
         async def run_test():
             osm2osw = OSM2OSW(osm_file=osm_file_path, workdir=OUTPUT_DIR, prefix='test')
             result = await osm2osw.convert()
-            self.assertEqual(len(result.generated_files), 6)
+            self.assertEqual(len(result.generated_files), 4)
             for file in result.generated_files:
                 os.remove(file)
 

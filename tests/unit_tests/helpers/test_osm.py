@@ -4,7 +4,7 @@ import unittest
 from src.osm_osw_reformatter.serializer.osm.osm_graph import OSMGraph
 from src.osm_osw_reformatter.serializer.counters import WayCounter, PointCounter, NodeCounter
 from src.osm_osw_reformatter.helpers.osm import count_entities, get_osm_graph, osw_way_filter, osw_node_filter, \
-    osw_point_filter, simplify_og, construct_geometries
+    osw_point_filter, simplify_og, construct_geometries, osw_zone_filter, osw_polygon_filter
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEST_FILE = os.path.join(ROOT_DIR, 'test_files/wa.microsoft.osm.pbf')
@@ -87,6 +87,16 @@ class TestOSMHelper(unittest.TestCase):
             self.assertIsNone(construct_geometries_result)
 
         asyncio.run(run_test())
+
+    def test_osw_zone_filter(self):
+        tags = {'zone': 'residential'}
+        result = osw_zone_filter(tags)
+        self.assertTrue(isinstance(result, bool))
+
+    def test_osw_polygon_filter(self):
+        tags = {'polygon': 'yes'}
+        result = osw_polygon_filter(tags)
+        self.assertTrue(isinstance(result, bool))
 
 
 if __name__ == '__main__':
