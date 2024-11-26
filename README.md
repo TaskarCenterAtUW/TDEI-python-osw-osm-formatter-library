@@ -128,6 +128,7 @@ folder.
     coverage report                                                     // Can be run after 1st command 
     ```
   
+
 - After the commands are run, you can check the coverage report in `htmlcov/index.html`. Open the file in any browser,  
   and it shows complete coverage details  
 - The terminal will show the output of coverage like this  

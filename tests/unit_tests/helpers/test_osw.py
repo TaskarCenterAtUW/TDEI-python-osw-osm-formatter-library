@@ -220,3 +220,20 @@ class TestOSWHelper(unittest.TestCase):
         # Check if the temporary GeoJSON files have been removed
         for filename in self.geojson_files.keys():
             self.assertFalse(os.path.exists(filename))
+
+    def test_osw_zone_filter(self):
+        tags = {'zone': 'residential'}
+        result = OSWHelper.osw_zone_filter(tags)
+        self.assertTrue(isinstance(result, bool))
+        self.assertFalse(result)
+
+    def test_osw_polygon_filter(self):
+        tags = {'building': 'yes', 'type': 'multipolygon'}
+        result = OSWHelper.osw_polygon_filter(tags)
+        self.assertTrue(isinstance(result, bool))
+        self.assertTrue(result)
+
+
+
+if __name__ == '__main__':
+    unittest.main()

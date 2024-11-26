@@ -1,5 +1,10 @@
 # Change log
 
+### 0.2.6
+- Added unit test cases
+- Added unit test cases pipeline
+- Added support to upload test cases results on Azure blob
+
 ### 0.2.5
 - Fixes XML Parsing issue
 

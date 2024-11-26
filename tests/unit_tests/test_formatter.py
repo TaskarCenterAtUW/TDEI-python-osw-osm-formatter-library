@@ -2,6 +2,7 @@ import os
 import shutil
 import asyncio
 import unittest
+from unittest.mock import patch
 from src.osm_osw_reformatter import Formatter
 from src.osm_osw_reformatter.helpers.response import Response
 
@@ -87,6 +88,22 @@ class TestFormatter(unittest.TestCase):
         formatter.cleanup()
         self.assertFalse(os.path.exists(f'{OUTPUT_DIR}/non_existent1.osm'))
         self.assertFalse(os.path.exists(f'{OUTPUT_DIR}/non_existent2.osm'))
+
+    @patch("src.osm_osw_reformatter.OSW2OSM.convert")
+    def test_osw2osm_successful(self, mock_convert):
+        # Mock the response from OSW2OSM.convert
+        mock_response = Response(status=True, generated_files=['output.osm'])
+        mock_convert.return_value = mock_response
+
+        formatter = Formatter(file_path=self.osw_file_path, workdir=OUTPUT_DIR)
+        result = formatter.osw2osm()
+
+        # Assertions
+        mock_convert.assert_called_once()
+        self.assertTrue(result.status)
+        self.assertEqual(formatter.generated_files, [mock_response.generated_files])
+
+
 
 
 if __name__ == '__main__':
